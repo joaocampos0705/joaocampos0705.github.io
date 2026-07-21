@@ -1,0 +1,920 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Modelo de Negócio</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0C0F14;
+    --bg-2:#14181F;
+    --bg-3:#1B2029;
+    --bg-4:#232935;
+    --line: rgba(255,255,255,0.07);
+    --line-soft: rgba(255,255,255,0.045);
+    --text:#ECEEF2;
+    --text-dim: rgba(236,238,242,0.56);
+    --text-faint: rgba(236,238,242,0.34);
+    --accent:#2FBF8F;
+    --accent-soft: rgba(47,191,143,0.14);
+    --accent-glow: rgba(47,191,143,0.22);
+    --warn:#E5484D;
+    --warn-soft: rgba(229,72,77,0.14);
+    --input:#7DD3FC;
+    --input-bg: rgba(125,211,252,0.08);
+    --input-border: rgba(125,211,252,0.45);
+    --mono: 'IBM Plex Mono', monospace;
+    --display: 'Sora', sans-serif;
+    --body-f: 'Inter', sans-serif;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:
+      radial-gradient(ellipse 800px 420px at 85% -8%, rgba(47,191,143,0.07), transparent 60%),
+      var(--bg);
+    color:var(--text);
+    font-family:var(--body-f);
+    padding:36px 22px 70px;
+    min-height:100vh;
+  }
+  .wrap{max-width:1220px;margin:0 auto;}
+
+  /* MASTHEAD */
+  .masthead{
+    display:flex;justify-content:space-between;align-items:center;
+    margin-bottom:30px;flex-wrap:wrap;gap:16px;
+    padding-bottom:22px;border-bottom:1px solid var(--line);
+  }
+  .brand{display:flex;align-items:center;gap:16px;}
+  .logo{height:130px;width:auto;display:block;}
+
+  .masthead h1{
+    font-family:var(--display);font-size:28px;font-weight:700;margin:0;letter-spacing:-0.3px;
+    color:var(--text);
+  }
+  .masthead .subtitle{
+    font-family:var(--body-f);font-size:13px;color:var(--text-faint);margin-top:5px;
+  }
+  .base-pill{
+    font-family:var(--mono);font-size:12px;color:var(--text-dim);
+    background:var(--bg-3);border:1px solid var(--line);
+    padding:10px 20px;border-radius:14px;
+    display:flex;gap:14px;align-items:center;
+  }
+  .base-pill b{color:var(--text);font-weight:600;}
+  .base-pill .divider{width:1px;height:14px;background:var(--line);}
+
+  /* LAYOUT */
+  .grid{
+    display:grid;
+    grid-template-columns: 320px 1fr;
+    gap:20px;
+  }
+  @media (max-width:900px){ .grid{grid-template-columns:1fr;} }
+
+  /* PANEL */
+  .panel{
+    background:var(--bg-2);
+    border:1px solid var(--line);
+    border-radius:20px;
+    padding:26px 24px 14px;
+  }
+  .panel h2{
+    font-family:var(--display);font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:1.3px;
+    margin:0 0 22px;color:var(--text-faint);
+  }
+
+  .field{margin-bottom:24px;}
+  .field label{
+    display:flex;justify-content:space-between;align-items:baseline;
+    font-family:var(--body-f);font-size:13.5px;font-weight:500;margin-bottom:10px;color:var(--text);
+  }
+  .field label .val{
+    font-family:var(--mono);font-size:12.5px;font-weight:600;color:var(--text);
+    padding:3px 10px;border-radius:8px;background:var(--bg-4);
+  }
+
+  input[type=range]{
+    -webkit-appearance:none;appearance:none;width:100%;height:4px;border-radius:999px;
+    background:var(--bg-4);outline:none;margin:8px 0;
+  }
+  input[type=range]::-webkit-slider-thumb{
+    -webkit-appearance:none;appearance:none;width:16px;height:16px;border-radius:50%;
+    background:var(--input);cursor:pointer;border:3px solid var(--bg-2);
+    box-shadow:0 0 0 1px var(--input-border), 0 0 8px var(--input-bg);
+  }
+  input[type=range]::-moz-range-thumb{
+    width:16px;height:16px;border-radius:50%;background:var(--input);cursor:pointer;border:3px solid var(--bg-2);
+  }
+
+  .subnote{font-family:var(--body-f);font-size:11.5px;color:var(--text-faint);margin-top:6px;line-height:1.5;}
+  .breakdown-pill{
+    font-family:var(--mono);font-size:12px;font-weight:600;color:var(--text);
+    background:var(--bg-4);border:1px solid var(--line);
+    padding:8px 12px;border-radius:10px;margin-top:10px;
+    display:flex;align-items:center;gap:6px;flex-wrap:wrap;
+  }
+  .breakdown-pill .di{color:var(--text-dim);}
+  .breakdown-pill .plus{color:var(--text-faint);}
+  .breakdown-pill .spread{color:var(--accent);}
+  .breakdown-pill .eq{color:var(--text-faint);}
+  .breakdown-pill .total{color:var(--text);}
+  .cat-breakdown{
+    margin-top:14px;padding-top:14px;border-top:1px dashed var(--line);
+    display:flex;flex-direction:column;gap:10px;
+  }
+  .catrow{display:flex;justify-content:space-between;align-items:center;gap:10px;}
+  .catlabel{font-family:var(--body-f);font-size:12px;color:var(--text-dim);}
+  .catinput{display:flex;align-items:center;gap:6px;}
+  .catinput input[type=number]{
+    width:64px;font-family:var(--mono);font-size:13px;font-weight:600;padding:6px 8px;
+    background:var(--input-bg);border:1px solid var(--input-border);color:var(--input);border-radius:8px;
+    outline:none;transition:border-color .15s;
+  }
+  .catinput select{
+    font-family:var(--mono);font-size:10.5px;font-weight:600;padding:6px 6px;
+    background:var(--input-bg);border:1px solid var(--input-border);color:var(--input);border-radius:8px;
+    outline:none;cursor:pointer;
+  }
+
+  .catinput input[type=number]:focus{border-color:var(--input);}
+  .catinput span{font-family:var(--mono);font-size:10px;color:var(--text-faint);}
+
+
+  .numinput{display:flex;align-items:center;gap:10px;margin-top:2px;}
+  .numinput input[type=number]{
+    width:100px;font-family:var(--mono);font-size:15px;font-weight:600;padding:9px 14px;
+    background:var(--input-bg);border:1px solid var(--input-border);color:var(--input);border-radius:10px;
+    outline:none;transition:border-color .15s;
+  }
+  .numinput input[type=number]:focus{border-color:var(--input);}
+  .numinput span{font-family:var(--mono);font-size:11.5px;color:var(--text-faint);}
+
+  .reset{
+    font-family:var(--body-f);font-size:12.5px;font-weight:600;letter-spacing:0.2px;
+    background:transparent;border:1px solid var(--line);color:var(--text-dim);
+    padding:12px 14px;border-radius:12px;cursor:pointer;width:100%;
+    margin:8px 0 20px;transition:all .15s;
+  }
+  .reset:hover{border-color:var(--accent);color:var(--accent);}
+
+  /* FLOW AREA */
+  .flow{
+    background:var(--bg-2);border:1px solid var(--line);border-radius:20px;
+    padding:30px 30px 26px;
+  }
+  .flow h2{
+    font-family:var(--display);font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:1.3px;
+    margin:0 0 24px;color:var(--text-faint);
+  }
+
+  .diagram{
+    display:grid;
+    grid-template-columns: 1fr 1.25fr 1fr;
+    gap:14px;
+    align-items:center;
+  }
+  .col{display:flex;flex-direction:column;gap:14px;}
+  .col.left{align-items:stretch;}
+  .col.right{align-items:stretch;}
+
+  /* PILL NODES */
+  .pill{
+    position:relative;
+    background:var(--bg-3);
+    border:1px solid var(--line);
+    border-radius:16px;
+    padding:14px 18px;
+    display:flex;flex-direction:column;gap:3px;
+  }
+  .pill .lbl{font-family:var(--body-f);font-size:11.5px;color:var(--text-faint);display:flex;align-items:center;gap:7px;}
+  .pill .lbl .dot{width:6px;height:6px;border-radius:50%;background:var(--text-faint);flex-shrink:0;}
+  .pill.in .lbl .dot{background:var(--text-dim);}
+  .pill.out .lbl .dot{background:var(--accent);}
+  .pill .amt{font-family:var(--mono);font-size:17px;font-weight:600;color:var(--text);}
+  .pill.dyn.pos .amt{color:var(--accent);}
+  .pill.dyn.neg .amt{color:var(--warn);}
+
+  .col-spacer{flex:1;min-height:16px;}
+
+  /* CENTER CARD */
+  .box{
+    background: var(--bg-3);
+    border:1px solid var(--line);
+    border-radius:24px;
+    padding:28px 24px;min-height:300px;
+    display:flex;flex-direction:column;justify-content:space-between;
+  }
+  .box .title{
+    font-family:var(--display);font-weight:700;font-size:18px;text-align:center;margin-bottom:18px;
+    letter-spacing:-0.1px;color:var(--text);
+  }
+  .box .depts{
+    display:flex;flex-wrap:wrap;justify-content:center;gap:8px;margin-bottom:18px;
+  }
+  .box .depts span{
+    font-family:var(--mono);font-size:10.5px;color:var(--text-dim);
+    background:var(--bg-4);border:1px solid var(--line-soft);
+    padding:6px 12px;border-radius:8px;
+  }
+  .box .capital{
+    font-family:var(--mono);font-size:12px;border-top:1px solid var(--line);padding-top:14px;margin-top:auto;
+  }
+  .capital .row{display:flex;justify-content:space-between;margin-bottom:6px;color:var(--text-dim);}
+  .capital .row.total{
+    border-top:1px solid var(--line);margin-top:8px;padding-top:8px;font-weight:600;color:var(--text);
+    font-size:13px;
+  }
+  .capital .row .v{color:var(--text-dim);font-weight:500;}
+  .capital .row.total .v{color:var(--text);}
+
+  /* RESULTS */
+  .results{
+    margin-top:26px;
+    display:flex;flex-wrap:wrap;gap:12px;
+  }
+  .res-cell{
+    flex:1;min-width:180px;
+    background:var(--bg-3);border:1px solid var(--line);
+    border-radius:16px;padding:18px 20px;
+  }
+  .res-cell .k{
+    font-family:var(--body-f);font-size:10.5px;text-transform:uppercase;letter-spacing:1px;
+    color:var(--text-faint);margin-bottom:8px;font-weight:600;
+  }
+  .res-cell .v{font-family:var(--mono);font-size:22px;font-weight:700;color:var(--text);}
+  .res-cell .v.pos{color:var(--accent);}
+  .res-cell .v.neg{color:var(--warn);}
+  .res-cell.emphasis{
+    background: linear-gradient(180deg, var(--bg-4), var(--bg-3));
+    border-color: rgba(255,255,255,0.12);
+  }
+  .res-cell .sub{font-family:var(--mono);font-size:10.5px;color:var(--text-faint);margin-top:6px;}
+
+  /* WATERFALL */
+  .waterfall{margin-top:24px;}
+  .wf-row{
+    display:grid;grid-template-columns:180px 1fr 120px;gap:14px;align-items:center;
+    padding:10px 0;
+  }
+  .wf-row .wf-label{font-family:var(--body-f);font-size:12.5px;color:var(--text-dim);}
+  .wf-row:last-child .wf-label{color:var(--text);font-weight:600;}
+  .wf-bar-bg{background:var(--bg-4);height:10px;border-radius:6px;overflow:hidden;}
+  .wf-bar{height:100%;border-radius:6px;transition:width .2s;}
+  .wf-bar.op{background:#4B5563;}
+  .wf-bar.kt{background:#6B7280;}
+  .wf-bar.ke{background:var(--accent);}
+  .wf-bar.neg{background:var(--warn);}
+  .wf-amt{text-align:right;font-family:var(--mono);font-size:13px;color:var(--text);}
+  .wf-row:last-child .wf-amt{font-weight:700;}
+
+  .viz-section{margin-top:34px;padding-top:26px;border-top:1px solid var(--line);}
+  .viz-section h2{
+    font-family:var(--display);font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:1.3px;
+    margin:0 0 18px;color:var(--text-faint);
+  }
+  .viz-grid{
+    display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:14px;
+  }
+  @media (max-width:820px){ .viz-grid{grid-template-columns:1fr;} }
+  .viz-card{
+    background:var(--bg-3);border:1px solid var(--line);border-radius:18px;
+    padding:20px;display:flex;flex-direction:column;
+  }
+  .viz-card.wide{width:100%;}
+  .viz-title{
+    font-family:var(--body-f);font-size:12.5px;font-weight:600;color:var(--text-dim);margin-bottom:16px;
+  }
+  .viz-caption{
+    font-family:var(--mono);font-size:11px;color:var(--text-faint);margin-top:10px;text-align:center;
+  }
+
+  /* LEVERAGE BLOCKS */
+  .leverage-blocks{
+    display:flex;gap:5px;align-items:flex-end;justify-content:center;padding:22px 0 4px;width:100%;
+  }
+  .leverage-blocks .lb{
+    flex:1 1 0;min-width:0;max-width:34px;height:56px;border-radius:7px;position:relative;
+  }
+  .leverage-blocks .lb.ke{background:linear-gradient(160deg, var(--accent), #1F8F6C);}
+  .leverage-blocks .lb.kt{background:var(--bg-4);border:1px solid var(--line);}
+  .leverage-blocks .lb-label{
+    position:absolute;top:-20px;left:50%;transform:translateX(-50%);
+    font-family:var(--mono);font-size:9.5px;color:var(--text-faint);white-space:nowrap;
+  }
+
+  /* DONUT */
+  .donut-wrap{position:relative;width:150px;height:150px;margin:4px auto 14px;}
+  .donut{width:100%;height:100%;border-radius:50%;}
+  .donut-center{
+    position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+    flex-direction:column;font-family:var(--mono);
+  }
+  .donut-center .val{font-size:15px;font-weight:700;color:var(--text);}
+  .donut-center .lbl{font-size:9px;color:var(--text-faint);margin-top:2px;}
+  .donut-legend{display:flex;flex-direction:column;gap:6px;}
+  .donut-legend .li{
+    display:flex;align-items:center;gap:8px;font-family:var(--body-f);font-size:11px;color:var(--text-dim);
+    justify-content:space-between;
+  }
+  .donut-legend .li .lname{display:flex;align-items:center;gap:7px;}
+  .donut-legend .li .dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+  .donut-legend .li .lval{font-family:var(--mono);color:var(--text-faint);}
+
+  /* DISTRIBUTION BAR */
+  .dist-bar{
+    display:flex;width:100%;height:26px;border-radius:8px;overflow:hidden;margin:14px 0 14px;
+    background:var(--bg-4);
+  }
+  .dist-bar .seg{height:100%;transition:width .2s;}
+  .dist-legend{display:flex;flex-direction:column;gap:6px;}
+  .dist-legend .li{
+    display:flex;align-items:center;gap:8px;font-family:var(--body-f);font-size:11px;color:var(--text-dim);
+    justify-content:space-between;
+  }
+  .dist-legend .li .lname{display:flex;align-items:center;gap:7px;}
+  .dist-legend .li .dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+  .dist-legend .li .lval{font-family:var(--mono);color:var(--text-faint);}
+
+  /* SENSITIVITY CHART */
+  #sensitivity-chart{width:100%;height:220px;display:block;}
+
+  .footnote{
+    font-family:var(--mono);font-size:11px;color:var(--text-faint);margin-top:28px;line-height:1.7;
+    max-width:900px;
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="masthead">
+    <div class="brand">
+      <img src="data:image/webp;base64,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" alt="CEI - Companhia Energética Integrada" class="logo">
+      <div>
+        <h1>Modelo de Negócio - Crédito</h1>
+        <div class="subtitle">Estrutura de capital, spread e distribuição de resultado</div>
+      </div>
+    </div>
+    <div class="base-pill">
+      <span>KE = <b>1X</b></span>
+      <span class="divider"></span>
+      <span>KT = <b>6X</b></span>
+    </div>
+  </div>
+
+  <div class="grid">
+    <!-- CONTROL PANEL -->
+    <div class="panel">
+      <h2>Variáveis</h2>
+
+      <div class="field">
+        <label><span>X (base do capital)</span></label>
+        <div class="numinput">
+          <input type="number" id="xInput" step="1" min="1" value="100">
+          <span>KE = 1X · KT = 6X</span>
+        </div>
+        <div class="subnote">define KE e KT proporcionalmente (razão 1:6 fixa)</div>
+      </div>
+
+      <div class="field">
+        <label><span>DI anual (real)</span></label>
+        <div class="numinput">
+          <input type="number" id="cdiInput" step="0.01" min="0" max="50" value="10">
+          <span>% a.a.</span>
+        </div>
+        <div class="subnote">valor de referência usado para converter tudo abaixo em R$</div>
+      </div>
+
+      <div class="field">
+        <label><span>Taxa cobrada do cliente</span><span class="val" id="v-taxaCliente">180%</span></label>
+        <input type="range" id="taxaCliente" min="100" max="400" step="1" value="180">
+        <div class="subnote">J = DI + Spread, expresso como % do DI</div>
+        <div class="breakdown-pill" id="v-taxaBreakdown">—</div>
+      </div>
+
+      <div class="field">
+        <label><span>Remuneração do KT</span><span class="val" id="v-remKT">100%</span></label>
+        <input type="range" id="remKT" min="0" max="150" step="1" value="100">
+        <div class="subnote">% do DI pago ao capital de terceiros</div>
+      </div>
+
+      <div class="field custo">
+        <label><span>Custos operacionais</span><span class="val" id="v-custoOp">—</span></label>
+        <div class="subnote">cada categoria pode ser um valor fixo em R$, ou um percentual da receita de juros recebida pela empresa</div>
+        <div class="cat-breakdown">
+          <div class="catrow">
+            <span class="catlabel">Tesouraria</span>
+            <div class="catinput">
+              <select id="cat-tesouraria-type">
+                <option value="rs">R$</option>
+                <option value="pct">% receita</option>
+              </select>
+              <input type="number" id="cat-tesouraria" step="0.1" min="0" value="5">
+            </div>
+          </div>
+          <div class="catrow">
+            <span class="catlabel">Comercial</span>
+            <div class="catinput">
+              <select id="cat-comercial-type">
+                <option value="rs">R$</option>
+                <option value="pct">% receita</option>
+              </select>
+              <input type="number" id="cat-comercial" step="0.1" min="0" value="6">
+            </div>
+          </div>
+          <div class="catrow">
+            <span class="catlabel">Back</span>
+            <div class="catinput">
+              <select id="cat-back-type">
+                <option value="rs">R$</option>
+                <option value="pct">% receita</option>
+              </select>
+              <input type="number" id="cat-back" step="0.1" min="0" value="4">
+            </div>
+          </div>
+          <div class="catrow">
+            <span class="catlabel">Análise de crédito</span>
+            <div class="catinput">
+              <select id="cat-analise-type">
+                <option value="rs">R$</option>
+                <option value="pct">% receita</option>
+              </select>
+              <input type="number" id="cat-analise" step="0.1" min="0" value="2">
+            </div>
+          </div>
+          <div class="catrow">
+            <span class="catlabel">Outros</span>
+            <div class="catinput">
+              <select id="cat-outros-type">
+                <option value="rs">R$</option>
+                <option value="pct">% receita</option>
+              </select>
+              <input type="number" id="cat-outros" step="0.1" min="0" value="1">
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <button class="reset" id="resetBtn">Restaurar padrão</button>
+    </div>
+
+    <!-- DIAGRAM -->
+    <div class="flow">
+      <h2>Fluxo do Ecossistema</h2>
+      <div class="diagram">
+        <div class="col left">
+          <div class="pill in">
+            <span class="lbl"><span class="dot"></span>KE · X</span>
+            <span class="amt" id="d-ke">100</span>
+          </div>
+          <div class="pill in">
+            <span class="lbl"><span class="dot"></span>KT · 6X</span>
+            <span class="amt" id="d-kt">600</span>
+          </div>
+          <div class="col-spacer"></div>
+          <div class="pill out dyn" id="pill-remkt">
+            <span class="lbl"><span class="dot"></span>Remuneração KT</span>
+            <span class="amt" id="d-remkt-out">—</span>
+          </div>
+          <div class="pill out dyn" id="pill-reske">
+            <span class="lbl"><span class="dot"></span>Remuneração KE (Resultado)</span>
+            <span class="amt" id="d-reske-out">—</span>
+          </div>
+        </div>
+
+        <div class="box">
+          <div>
+            <div class="title">Empresa</div>
+            <div class="depts">
+              <span>tesouraria</span>
+              <span>comercial</span>
+              <span>back</span>
+              <span>análise de crédito</span>
+              <span>outros</span>
+            </div>
+          </div>
+          <div class="capital">
+            <div class="row"><span>Custo operacional</span><span class="v" id="d-custop">—</span></div>
+            <div class="row total"><span>Total captado (7X)</span><span class="v" id="d-total">700</span></div>
+          </div>
+        </div>
+
+        <div class="col right">
+          <div class="pill out">
+            <span class="lbl"><span class="dot"></span>Crédito concedido</span>
+            <span class="amt" id="d-credito">700</span>
+          </div>
+          <div class="col-spacer"></div>
+          <div class="pill in">
+            <span class="lbl"><span class="dot"></span>Principal + Juros &nbsp;(Juros = % DI)</span>
+            <span class="amt" id="d-pj">—</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- RESULT STRIP -->
+      <div class="results">
+        <div class="res-cell">
+          <div class="k">Juros recebidos</div>
+          <div class="v" id="r-juros">—</div>
+          <div class="sub" id="r-juros-sub">—</div>
+        </div>
+        <div class="res-cell">
+          <div class="k">Spread bruto</div>
+          <div class="v" id="r-spread">—</div>
+          <div class="sub" id="r-spread-sub">pontos de %DI sobre KT</div>
+        </div>
+        <div class="res-cell emphasis">
+          <div class="k">Resultado (sócios)</div>
+          <div class="v" id="r-resultado">—</div>
+          <div class="sub" id="r-resultado-sub">—</div>
+        </div>
+        <div class="res-cell emphasis">
+          <div class="k">ROE do KE</div>
+          <div class="v" id="r-roe">—</div>
+          <div class="sub" id="r-roe-sub">—</div>
+        </div>
+      </div>
+
+      <!-- WATERFALL -->
+      <div class="waterfall" id="waterfall"></div>
+
+      <!-- VISUALIZAÇÕES -->
+      <div class="viz-section">
+        <h2>Visualizações</h2>
+        <div class="viz-grid">
+          <div class="viz-card">
+            <div class="viz-title">Alavancagem: KE x KT</div>
+            <div class="leverage-blocks" id="leverage-blocks"></div>
+            <div class="viz-caption" id="leverage-caption">—</div>
+          </div>
+          <div class="viz-card">
+            <div class="viz-title">Composição dos custos operacionais</div>
+            <div class="donut-wrap">
+              <div class="donut" id="donut-chart"></div>
+              <div class="donut-center" id="donut-center">—</div>
+            </div>
+            <div class="donut-legend" id="donut-legend"></div>
+          </div>
+          <div class="viz-card">
+            <div class="viz-title">Para onde vai o juro recebido</div>
+            <div class="dist-bar" id="dist-bar"></div>
+            <div class="dist-legend" id="dist-legend"></div>
+          </div>
+        </div>
+        <div class="viz-card wide">
+          <div class="viz-title">Sensibilidade: Resultado x Spread cobrado do cliente</div>
+          <svg id="sensitivity-chart" viewBox="0 0 640 220" preserveAspectRatio="none"></svg>
+          <div class="viz-caption" id="sensitivity-caption">—</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="footnote">
+    X define o capital próprio (KE = 1X). KT permanece travado em 6X, sempre 6 vezes o valor de KE.
+    "Juros recebidos" considera os 7X inteiros emprestados ao cliente à taxa definida. O resultado pode ficar negativo
+    se o custo operacional + remuneração do KT superarem os juros recebidos — isso mostra o spread mínimo necessário
+    para o modelo se sustentar.
+  </div>
+
+</div>
+
+<script>
+const els = {
+  xInput: document.getElementById('xInput'),
+  cdiInput: document.getElementById('cdiInput'),
+  taxaCliente: document.getElementById('taxaCliente'),
+  remKT: document.getElementById('remKT'),
+  cat_tesouraria: document.getElementById('cat-tesouraria'),
+  cat_tesouraria_type: document.getElementById('cat-tesouraria-type'),
+  cat_comercial: document.getElementById('cat-comercial'),
+  cat_comercial_type: document.getElementById('cat-comercial-type'),
+  cat_back: document.getElementById('cat-back'),
+  cat_back_type: document.getElementById('cat-back-type'),
+  cat_analise: document.getElementById('cat-analise'),
+  cat_analise_type: document.getElementById('cat-analise-type'),
+  cat_outros: document.getElementById('cat-outros'),
+  cat_outros_type: document.getElementById('cat-outros-type'),
+};
+
+function fmtBRL(v){
+  const sign = v < 0 ? '-' : '';
+  return sign + 'R$ ' + Math.abs(v).toLocaleString('pt-BR', {minimumFractionDigits:1, maximumFractionDigits:1});
+}
+function fmtPct(v, dec=1){
+  return v.toLocaleString('pt-BR', {minimumFractionDigits:dec, maximumFractionDigits:dec}) + '%';
+}
+
+function render(){
+  const X = parseFloat(els.xInput.value) || 0;
+  const KE = 1 * X;
+  const KT = 6 * X;
+  const TOTAL = KE + KT;
+
+  const cdi = parseFloat(els.cdiInput.value) / 100 || 0;
+  const taxaClientePct = parseFloat(els.taxaCliente.value);
+  const remKTPct = parseFloat(els.remKT.value);
+
+
+  document.getElementById('v-taxaCliente').textContent = taxaClientePct + '%';
+  document.getElementById('v-remKT').textContent = remKTPct + '%';
+
+
+  const taxaClienteRate = (taxaClientePct/100) * cdi;
+
+  const diRateDisplay = cdi*100;
+  const spreadRateDisplay = (taxaClienteRate*100) - (cdi*100);
+  document.getElementById('v-taxaBreakdown').innerHTML =
+    `<span class="di">${fmtPct(diRateDisplay,2)} DI</span><span class="plus">+</span><span class="spread">${fmtPct(spreadRateDisplay,2)} spread</span><span class="eq">=</span><span class="total">${fmtPct(taxaClienteRate*100,2)} a.a.</span>`;
+  const remKTRate = (remKTPct/100) * cdi;
+
+  const jurosRecebidos = TOTAL * taxaClienteRate;
+  const catContribs = {
+    tesouraria: (els.cat_tesouraria_type.value==='pct' ? (parseFloat(els.cat_tesouraria.value)||0)/100*jurosRecebidos : (parseFloat(els.cat_tesouraria.value)||0)),
+    comercial: (els.cat_comercial_type.value==='pct' ? (parseFloat(els.cat_comercial.value)||0)/100*jurosRecebidos : (parseFloat(els.cat_comercial.value)||0)),
+    back: (els.cat_back_type.value==='pct' ? (parseFloat(els.cat_back.value)||0)/100*jurosRecebidos : (parseFloat(els.cat_back.value)||0)),
+    analise: (els.cat_analise_type.value==='pct' ? (parseFloat(els.cat_analise.value)||0)/100*jurosRecebidos : (parseFloat(els.cat_analise.value)||0)),
+    outros: (els.cat_outros_type.value==='pct' ? (parseFloat(els.cat_outros.value)||0)/100*jurosRecebidos : (parseFloat(els.cat_outros.value)||0)),
+  };
+  const custoOperacional = catContribs.tesouraria + catContribs.comercial + catContribs.back + catContribs.analise + catContribs.outros;
+  document.getElementById('v-custoOp').textContent = fmtBRL(custoOperacional) + (jurosRecebidos>0 ? ' · ' + (custoOperacional/jurosRecebidos*100).toFixed(1) + '% da receita' : '');
+  const remuneracaoKT = KT * remKTRate;
+  const resultado = jurosRecebidos - custoOperacional - remuneracaoKT;
+  const roe = KE !== 0 ? (resultado / KE) * 100 : 0;
+  const roeEmCDI = cdi !== 0 ? roe / (cdi*100) * 100 : 0;
+
+  const spreadPontos = taxaClientePct - remKTPct;
+  const spreadReais = TOTAL*taxaClienteRate - KT*remKTRate;
+
+  document.getElementById('d-ke').textContent = KE;
+  document.getElementById('d-kt').textContent = KT;
+  document.getElementById('d-total').textContent = TOTAL;
+  document.getElementById('d-credito').textContent = TOTAL;
+  document.getElementById('d-pj').textContent = fmtBRL(TOTAL + jurosRecebidos);
+  document.getElementById('d-custop').textContent = fmtBRL(custoOperacional);
+  document.getElementById('d-remkt-out').textContent = fmtBRL(KT + remuneracaoKT);
+  document.getElementById('d-reske-out').textContent = fmtBRL(KE + resultado);
+
+  const pillReske = document.getElementById('pill-reske');
+  pillReske.classList.toggle('pos', resultado >= 0);
+  pillReske.classList.toggle('neg', resultado < 0);
+
+  document.getElementById('r-juros').textContent = fmtBRL(jurosRecebidos);
+  document.getElementById('r-juros-sub').textContent = fmtPct(taxaClientePct) + ' do DI · ' + fmtPct(taxaClienteRate*100,2) + ' a.a.';
+
+  document.getElementById('r-spread').textContent = spreadPontos.toFixed(0) + ' p.p.';
+  document.getElementById('r-spread-sub').textContent = fmtBRL(spreadReais) + ' em juros';
+
+  const resEl = document.getElementById('r-resultado');
+  resEl.textContent = fmtBRL(resultado);
+  resEl.className = 'v ' + (resultado >= 0 ? 'pos' : 'neg');
+  document.getElementById('r-resultado-sub').textContent = resultado >= 0 ? '' : 'déficit — modelo não se sustenta';
+
+  const roeEl = document.getElementById('r-roe');
+  roeEl.textContent = fmtPct(roe,2);
+  roeEl.className = 'v ' + (roe >= 0 ? 'pos' : 'neg');
+  document.getElementById('r-roe-sub').textContent = '';
+
+  const maxScale = Math.max(jurosRecebidos, custoOperacional + remuneracaoKT + Math.max(resultado,0), 1);
+  const wf = document.getElementById('waterfall');
+  const rows = [
+    {label:'Juros recebidos', value: jurosRecebidos, cls:'ke'},
+    {label:'(–) Custo operacional', value: custoOperacional, cls:'op'},
+    {label:'(–) Remuneração KT', value: remuneracaoKT, cls:'kt'},
+    {label:'(=) Resultado (KE)', value: resultado, cls: resultado>=0 ? 'ke' : 'neg', final:true},
+  ];
+  wf.innerHTML = rows.map(r => {
+    const pct = Math.min(Math.abs(r.value)/maxScale*100, 100);
+    return `<div class="wf-row">
+      <span class="wf-label">${r.label}</span>
+      <span class="wf-bar-bg"><span class="wf-bar ${r.cls}" style="width:${pct}%"></span></span>
+      <span class="wf-amt">${fmtBRL(r.value)}</span>
+    </div>`;
+  }).join('');
+
+  renderLeverageBlocks(KE, KT);
+  renderDonut(catContribs, custoOperacional);
+  renderDistribution(custoOperacional, remuneracaoKT, resultado, jurosRecebidos);
+  renderSensitivity(TOTAL, KT, cdi, remKTRate, remuneracaoKT, taxaClientePct, remKTPct);
+}
+
+function renderLeverageBlocks(KE, KT){
+  const container = document.getElementById('leverage-blocks');
+  let html = '<div class="lb ke"><span class="lb-label">1X</span></div>';
+  for(let i=0;i<6;i++){ html += '<div class="lb kt"></div>'; }
+  container.innerHTML = html;
+  const ktBlocks = container.querySelectorAll('.lb.kt');
+  if(ktBlocks.length){
+    const mid = ktBlocks[Math.floor(ktBlocks.length/2)];
+    const lbl = document.createElement('span');
+    lbl.className = 'lb-label';
+    lbl.textContent = '6X';
+    mid.style.position = 'relative';
+    mid.appendChild(lbl);
+  }
+  document.getElementById('leverage-caption').textContent = `KE = ${fmtBRL(KE)}  ·  KT = ${fmtBRL(KT)}`;
+}
+
+function renderDonut(cat, total){
+  const order = [
+    {key:'tesouraria', label:'Tesouraria', color:'#2FBF8F'},
+    {key:'comercial', label:'Comercial', color:'#57D9AE'},
+    {key:'back', label:'Back', color:'#8C93A6'},
+    {key:'analise', label:'Análise de crédito', color:'#4B5568'},
+    {key:'outros', label:'Outros', color:'#6B7280'},
+  ];
+  const donutEl = document.getElementById('donut-chart');
+  const legendEl = document.getElementById('donut-legend');
+  const centerEl = document.getElementById('donut-center');
+
+  if(total <= 0){
+    donutEl.style.background = 'var(--bg-4)';
+    donutEl.style.webkitMask = 'none';
+    donutEl.style.mask = 'none';
+    legendEl.innerHTML = '<div class="li"><span>Sem custos definidos</span></div>';
+    centerEl.innerHTML = '<div class="val">—</div><div class="lbl">custo total</div>';
+    return;
+  }
+
+  let acc = 0;
+  const stops = [];
+  order.forEach(o=>{
+    const val = Math.max(cat[o.key]||0, 0);
+    const pct = val/total*100;
+    const start = acc;
+    const end = acc + pct;
+    if(pct > 0) stops.push(`${o.color} ${start.toFixed(2)}% ${end.toFixed(2)}%`);
+    acc = end;
+  });
+  donutEl.style.background = stops.length ? `conic-gradient(${stops.join(', ')})` : 'var(--bg-4)';
+  donutEl.style.webkitMask = 'radial-gradient(circle, transparent 58%, black 59%)';
+  donutEl.style.mask = 'radial-gradient(circle, transparent 58%, black 59%)';
+
+  centerEl.innerHTML = `<div class="val">${fmtBRL(total)}</div><div class="lbl">custo total</div>`;
+
+  legendEl.innerHTML = order.map(o=>{
+    const val = Math.max(cat[o.key]||0,0);
+    const pct = val/total*100;
+    return `<div class="li"><span class="lname"><span class="dot" style="background:${o.color}"></span>${o.label}</span><span class="lval">${pct.toFixed(0)}%</span></div>`;
+  }).join('');
+}
+
+function renderDistribution(custo, remKT, resultado, juros){
+  const bar = document.getElementById('dist-bar');
+  const legend = document.getElementById('dist-legend');
+  const posResultado = Math.max(resultado, 0);
+  const base = custo + remKT + posResultado;
+
+  if(base <= 0 || juros <= 0){
+    bar.innerHTML = '<span class="seg" style="width:100%;background:var(--bg-4)"></span>';
+    legend.innerHTML = '<div class="li"><span>Sem receita para distribuir</span></div>';
+    return;
+  }
+
+  const segs = [
+    {label:'Custo operacional', value:custo, color:'#6B7280'},
+    {label:'Remuneração KT', value:remKT, color:'#8C93A6'},
+    {label:'Resultado (sócios)', value:posResultado, color: resultado>=0 ? 'var(--accent)' : 'var(--warn)'},
+  ];
+  bar.innerHTML = segs.map(s=>{
+    const pct = s.value/base*100;
+    return `<span class="seg" style="width:${pct}%;background:${s.color}"></span>`;
+  }).join('');
+  legend.innerHTML = segs.map(s=>{
+    const pct = s.value/base*100;
+    return `<div class="li"><span class="lname"><span class="dot" style="background:${s.color}"></span>${s.label}</span><span class="lval">${pct.toFixed(0)}%</span></div>`;
+  }).join('') + (resultado<0 ? `<div class="li"><span class="lname"><span class="dot" style="background:var(--warn)"></span>Déficit</span><span class="lval">${fmtBRL(resultado)}</span></div>` : '');
+}
+
+function resultadoAtTaxa(tPct, TOTAL, remuneracaoKT, cdi){
+  const rate = (tPct/100) * cdi;
+  const juros = TOTAL * rate;
+  const custo =
+    (els.cat_tesouraria_type.value==='pct' ? (parseFloat(els.cat_tesouraria.value)||0)/100*juros : (parseFloat(els.cat_tesouraria.value)||0)) +
+    (els.cat_comercial_type.value==='pct' ? (parseFloat(els.cat_comercial.value)||0)/100*juros : (parseFloat(els.cat_comercial.value)||0)) +
+    (els.cat_back_type.value==='pct' ? (parseFloat(els.cat_back.value)||0)/100*juros : (parseFloat(els.cat_back.value)||0)) +
+    (els.cat_analise_type.value==='pct' ? (parseFloat(els.cat_analise.value)||0)/100*juros : (parseFloat(els.cat_analise.value)||0)) +
+    (els.cat_outros_type.value==='pct' ? (parseFloat(els.cat_outros.value)||0)/100*juros : (parseFloat(els.cat_outros.value)||0));
+  return juros - custo - remuneracaoKT;
+}
+
+function fmtCompactBRL(v){
+  const abs = Math.abs(v);
+  const sign = v < 0 ? '-' : '';
+  if(abs >= 1000000) return sign + 'R$ ' + (abs/1000000).toLocaleString('pt-BR',{minimumFractionDigits:1,maximumFractionDigits:1}) + 'mi';
+  if(abs >= 1000) return sign + 'R$ ' + (abs/1000).toLocaleString('pt-BR',{minimumFractionDigits:1,maximumFractionDigits:1}) + 'mil';
+  return fmtBRL(v);
+}
+
+function renderSensitivity(TOTAL, KT, cdi, remKTRate, remuneracaoKT, currentTaxaPct, remKTPct){
+  const svg = document.getElementById('sensitivity-chart');
+  const minT = parseFloat(els.taxaCliente.min);
+  const maxT = parseFloat(els.taxaCliente.max);
+  // Eixo X em pontos de spread (Taxa cobrada − Remuneração do KT), não na taxa cheia
+  const minS = minT - remKTPct;
+  const maxS = maxT - remKTPct;
+  const N = 40;
+  const pts = [];
+  for(let i=0;i<=N;i++){
+    const s = minS + (maxS-minS)*i/N;
+    const t = s + remKTPct;
+    pts.push({s, r: resultadoAtTaxa(t, TOTAL, remuneracaoKT, cdi)});
+  }
+  const rVals = pts.map(p=>p.r);
+  const minR = Math.min(...rVals, 0);
+  const maxR = Math.max(...rVals, 0);
+  const rangeR = (maxR - minR) || 1;
+
+  const padL = 78, padR = 16, padT = 24, padB = 26;
+  const W = 640, H = 220;
+  const plotW = W - padL - padR;
+  const plotH = H - padT - padB;
+
+  const xScale = s => padL + (s-minS)/(maxS-minS)*plotW;
+  const yScale = r => padT + (1 - (r-minR)/rangeR)*plotH;
+  const zeroY = yScale(0);
+
+  let breakevenS = null;
+  for(let i=1;i<pts.length;i++){
+    const a = pts[i-1], b = pts[i];
+    if((a.r<0 && b.r>=0) || (a.r>=0 && b.r<0)){
+      const frac = a.r / (a.r - b.r);
+      breakevenS = a.s + (b.s-a.s)*frac;
+      break;
+    }
+  }
+
+  const linePath = pts.map((p,i)=> `${i===0?'M':'L'} ${xScale(p.s).toFixed(1)} ${yScale(p.r).toFixed(1)}`).join(' ');
+  const areaPath = `M ${xScale(pts[0].s).toFixed(1)} ${zeroY.toFixed(1)} ` +
+    pts.map(p=> `L ${xScale(p.s).toFixed(1)} ${yScale(p.r).toFixed(1)}`).join(' ') +
+    ` L ${xScale(pts[pts.length-1].s).toFixed(1)} ${zeroY.toFixed(1)} Z`;
+
+  const currentS = currentTaxaPct - remKTPct;
+  const currentR = resultadoAtTaxa(currentTaxaPct, TOTAL, remuneracaoKT, cdi);
+  const curX = xScale(currentS);
+  const curY = yScale(currentR);
+
+  const parts = [];
+  parts.push(`<line x1="${padL}" y1="${zeroY.toFixed(1)}" x2="${W-padR}" y2="${zeroY.toFixed(1)}" stroke="var(--line)" stroke-width="1" stroke-dasharray="3,3"/>`);
+
+  // Y-axis labels: skip the zero label if it would overlap the top or bottom label
+  const nearTop = Math.abs(zeroY - padT) < 16;
+  const nearBottom = Math.abs(zeroY - (H-padB)) < 16;
+  if(!nearTop && !nearBottom){
+    parts.push(`<text x="${padL-10}" y="${(zeroY+3.2).toFixed(1)}" text-anchor="end" font-family="IBM Plex Mono" font-size="9" fill="var(--text-faint)">R$ 0</text>`);
+  }
+  parts.push(`<text x="${padL-10}" y="${padT+4}" text-anchor="end" font-family="IBM Plex Mono" font-size="9" fill="var(--text-faint)">${fmtCompactBRL(maxR)}</text>`);
+  parts.push(`<text x="${padL-10}" y="${H-padB}" text-anchor="end" font-family="IBM Plex Mono" font-size="9" fill="var(--text-faint)">${fmtCompactBRL(minR)}</text>`);
+  parts.push(`<text x="${padL}" y="${H-8}" text-anchor="start" font-family="IBM Plex Mono" font-size="9" fill="var(--text-faint)">${minS.toFixed(0)} p.p.</text>`);
+  parts.push(`<text x="${W-padR}" y="${H-8}" text-anchor="end" font-family="IBM Plex Mono" font-size="9" fill="var(--text-faint)">${maxS.toFixed(0)} p.p.</text>`);
+
+  if(breakevenS !== null){
+    const bx = xScale(breakevenS);
+    parts.push(`<line x1="${bx.toFixed(1)}" y1="${padT}" x2="${bx.toFixed(1)}" y2="${H-padB}" stroke="var(--warn)" stroke-width="1" stroke-dasharray="4,3"/>`);
+    parts.push(`<text x="${bx.toFixed(1)}" y="${padT-8}" text-anchor="middle" font-family="IBM Plex Mono" font-size="9.5" font-weight="600" fill="var(--warn)">spread mín. ${breakevenS.toFixed(0)} p.p.</text>`);
+  }
+
+  parts.push(`<path d="${areaPath}" fill="var(--accent)" opacity="0.10"/>`);
+  parts.push(`<path d="${linePath}" fill="none" stroke="var(--accent)" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>`);
+  parts.push(`<circle cx="${curX.toFixed(1)}" cy="${curY.toFixed(1)}" r="5" fill="${currentR>=0?'var(--accent)':'var(--warn)'}" stroke="var(--bg-3)" stroke-width="2"/>`);
+
+  svg.innerHTML = parts.join('');
+
+  const capEl = document.getElementById('sensitivity-caption');
+  capEl.textContent = breakevenS !== null
+    ? `spread mínimo necessário: ${breakevenS.toFixed(0)} p.p. de DI — abaixo disso o resultado fica negativo`
+    : (pts[0].r >= 0 ? 'resultado positivo em toda a faixa simulada' : 'resultado negativo em toda a faixa simulada');
+}
+
+['input','change'].forEach(evt=>{
+  Object.values(els).forEach(el => el.addEventListener(evt, render));
+});
+
+document.getElementById('resetBtn').addEventListener('click', () => {
+  els.xInput.value = 100;
+  els.cdiInput.value = 10;
+  els.taxaCliente.value = 180;
+  els.remKT.value = 100;
+  els.cat_tesouraria.value = 5;
+  els.cat_tesouraria_type.value = 'rs';
+  els.cat_comercial.value = 6;
+  els.cat_comercial_type.value = 'rs';
+  els.cat_back.value = 4;
+  els.cat_back_type.value = 'rs';
+  els.cat_analise.value = 2;
+  els.cat_analise_type.value = 'rs';
+  els.cat_outros.value = 1;
+  els.cat_outros_type.value = 'rs';
+  render();
+});
+
+render();
+</script>
+</body>
+</html>
